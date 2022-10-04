@@ -1,0 +1,6 @@
+[submodule "client"]
+	path = client
+	url = git@github.com:luisphelipe/todo-client.git
+[submodule "api"]
+	path = api
+	url = git@github.com:luisphelipe/todo-api.git

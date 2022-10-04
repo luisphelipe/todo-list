@@ -1,0 +1,51 @@
+version: "3.6"
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: development
+    networks:
+      - dev
+    environment:
+      APP_ENV: development
+    volumes:
+      - ./client/src:/app/src
+    ports:
+      - 3000:3000
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./api
+      target: development
+    volumes:
+      - ./api:/usr/src/app
+    env_file:
+      - ./api/.env
+    command: "yarn run start:dev"
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - docker-nest-postgres:/var/lib/postgresql/data
+
+volumes:
+  docker-nest-postgres:
+networks:
+  dev:
+    driver: bridge
